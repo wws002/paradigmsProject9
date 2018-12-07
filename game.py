@@ -34,6 +34,10 @@ class Mario():
 		self.marioPics.append(pygame.image.load("mario4left.png"))
 		self.marioPics.append(pygame.image.load("mario5left.png"))
 
+	def notePrevious(self):
+		self.prev_x = self.x
+		self.prev_y = self.y
+
 	def update(self):
 		#gravity
 		self.vvel += 3.14159
