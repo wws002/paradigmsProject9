@@ -7,21 +7,29 @@ from time import sleep
 
 
 class Mario():
-	def __init__(self):
-		self.x = 0;
-		self.y = 0;
+	def __init__(self, model):
+		self.model = model
+		self.x = 0
+		self.y = 0
+		self.vvel = 0
+		self.mario1 = pygame.image.load("mario1.png")
+
 
 	def update(self):
-		self.y = 0;
+		self.vvel += 3.14159
+		self.y += self.vvel
+
+		if self.y > 355:
+			self.y = 355
 
 
 
 class Model():
 	def __init__(self):
-		self.mario = Mario();
+		self.mario = Mario(self)
 
 	def update(self):
-		self.mario.update();
+		self.mario.update()
 
 
 
@@ -29,14 +37,13 @@ class View():
 	def __init__(self, model):
 		screen_size = (800,600)
 		self.screen = pygame.display.set_mode(screen_size, 32)
-		self.mario1 = pygame.image.load("mario1.png")
 		self.model = model
-		self.model.rect = self.mario1.get_rect()
+		self.model.rect = self.model.mario.mario1.get_rect()
 
 	def update(self):
 		self.screen.fill([0,200,200])#draw the sky(sunny)
 		pygame.draw.rect(self.screen, (0, 128, 0), (0, 450, 800, 600))#draw the ground
-		self.screen.blit(self.mario1, self.model.rect)#draw mario
+		self.screen.blit(self.model.mario.mario1, (self.model.mario.x, self.model.mario.y), self.model.rect)#draw mario
 		pygame.display.flip()
 
 
