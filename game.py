@@ -12,6 +12,8 @@ class Mario():
 		self.model = model
 		self.x = 0
 		self.y = 0
+		self.prev_x = 0
+		self.prev_y = 0
 		self.w = 60
 		self.h = 95
 		self.vvel = 0
@@ -57,6 +59,7 @@ class Brick():
 ############################
 class Model():
 	def __init__(self):
+		self.scrollPos = 0
 		self.mario = Mario(self)
 		self.brick1 = Brick(100, 200)
 		self.brick2 = Brick(600, 350)
@@ -83,8 +86,8 @@ class View():
 		pygame.draw.rect(self.screen, (0, 128, 0), (0, 450, 800, 600))
 
 		#draw bricks
-		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x, self.model.brick1.y), self.model.rect)
-		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x, self.model.brick2.y), self.model.rect)
+		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos, self.model.brick1.y), self.model.rect)
+		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos, self.model.brick2.y), self.model.rect)
 
 		#animate mario
 		if self.model.mario.facingRight: #if he's facing right, animate right
@@ -95,10 +98,10 @@ class View():
 
 			#if keyRight and mario is on a surface, draw him running
 			if self.model.mario.runningRight and (self.model.mario.onTop or self.model.mario.y == 355):
-  				self.screen.blit(self.model.mario.marioPics[self.model.mario.mframe], (self.model.mario.x, self.model.mario.y), self.model.rect)
+  				self.screen.blit(self.model.mario.marioPics[self.model.mario.mframe], (350, self.model.mario.y), self.model.rect)
 
 			#else draw him standing still
-			else: self.screen.blit(self.model.mario.marioPics[3], (self.model.mario.x, self.model.mario.y), self.model.rect)
+			else: self.screen.blit(self.model.mario.marioPics[3], (350, self.model.mario.y), self.model.rect)
 
 		else: #if he's facing left,  animate left
 
@@ -108,10 +111,10 @@ class View():
 
 			#if keyLeft and mario is on a surface, draw him running
 			if self.model.mario.runningLeft and (self.model.mario.onTop or self.model.mario.y == 355):
-  				self.screen.blit(self.model.mario.marioPics[self.model.mario.mframe], (self.model.mario.x, self.model.mario.y), self.model.rect)
+  				self.screen.blit(self.model.mario.marioPics[self.model.mario.mframe], (350, self.model.mario.y), self.model.rect)
 
 			#else draw him standing still
-			else: self.screen.blit(self.model.mario.marioPics[7], (self.model.mario.x, self.model.mario.y), self.model.rect)
+			else: self.screen.blit(self.model.mario.marioPics[7], (350, self.model.mario.y), self.model.rect)
 
 		#idk
 		pygame.display.flip()
@@ -137,10 +140,12 @@ class Controller():
 
 		if keys[K_LEFT]:
 			self.model.mario.x -= 10
+			self.model.scrollPos -= 10
 			self.model.mario.runningLeft = True
 			self.model.mario.facingRight = False
 		if keys[K_RIGHT]:
 			self.model.mario.x += 10
+			self.model.scrollPos += 10
 			self.model.mario.runningRight = True
 			self.model.mario.facingRight = True
 		if keys[K_SPACE] and self.model.mario.y == 355:
