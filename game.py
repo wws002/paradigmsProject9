@@ -91,6 +91,10 @@ class Mario():
 			self.leaveBlock(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h)
 		if self.collision(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h):
 			self.leaveBlock(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h)
+		if self.collision(self.model.coinBlock1.x, self.model.coinBlock1.y, self.model.coinBlock1.w, self.model.coinBlock1.h):
+			self.leaveBlock(self.model.coinBlock1.x, self.model.coinBlock1.y, self.model.coinBlock1.w, self.model.coinBlock1.h)
+		if self.collision(self.model.coinBlock2.x, self.model.coinBlock2.y, self.model.coinBlock2.w, self.model.coinBlock2.h):
+			self.leaveBlock(self.model.coinBlock2.x, self.model.coinBlock2.y, self.model.coinBlock2.w, self.model.coinBlock2.h)
 
 ############################
 ########## Brick ###########
@@ -104,6 +108,24 @@ class Brick():
 		self.brickPic = pygame.image.load("Brick_Block.png")
 
 ############################
+####### CoinBlock ##########
+############################
+class CoinBlock():
+	def __init__(self, model, x, y):
+		self.x = x
+		self.y = y
+		self.w = 90
+		self.h = 90
+		self.coinCoint = 5
+		self.model = model
+		self.coinBlockPic = pygame.image.load("coinBlock2.png")
+		self.emptyCoinBlockPic = pygame.image.load("emptyCoinBlock2.png")
+
+	def update(self):
+		if(self.model.mario.y == self.y + self.h and self.model.mario.x + self.model.mario.w > self.x and self.model.mario.x < self.x + self.w):
+			print("whoa")
+
+############################
 ########## Model ###########
 ############################
 class Model():
@@ -112,9 +134,13 @@ class Model():
 		self.mario = Mario(self)
 		self.brick1 = Brick(100, 200)
 		self.brick2 = Brick(600, 350)
+		self.coinBlock1 = CoinBlock(self, 900, 200)
+		self.coinBlock2 = CoinBlock(self, 1200, 230)
 
 	def update(self):
 		self.mario.update()
+		self.coinBlock1.update()
+		self.coinBlock2.update()
 
 ############################
 ########## View ############
@@ -137,6 +163,10 @@ class View():
 		#draw bricks
 		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos, self.model.brick1.y), self.model.rect)
 		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos, self.model.brick2.y), self.model.rect)
+
+		#draw coin blocks
+		self.screen.blit(self.model.coinBlock1.coinBlockPic, (self.model.coinBlock1.x - self.model.scrollPos, self.model.coinBlock1.y), self.model.rect)
+		self.screen.blit(self.model.coinBlock2.coinBlockPic, (self.model.coinBlock2.x - self.model.scrollPos, self.model.coinBlock2.y), self.model.rect)
 
 		#animate mario
 		if self.model.mario.facingRight: #if he's facing right, animate right
