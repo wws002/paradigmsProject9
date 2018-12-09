@@ -1,5 +1,6 @@
 import pygame
 import time
+import random
 
 from pygame.locals import*
 from time import sleep
@@ -75,6 +76,7 @@ class Mario():
 		#ground
 		if self.y > 355:
 			self.y = 355
+			self.vvel = 0
 
 		#run
 		if self.runningLeft:
@@ -108,7 +110,7 @@ class Brick():
 		self.brickPic = pygame.image.load("Brick_Block.png")
 
 ############################
-####### CoinBlock ##########
+######## CoinBlock #########
 ############################
 class CoinBlock():
 	def __init__(self, model, x, y):
@@ -116,14 +118,46 @@ class CoinBlock():
 		self.y = y
 		self.w = 90
 		self.h = 90
-		self.coinCoint = 5
+		self.coinCount = 5
 		self.model = model
 		self.coinBlockPic = pygame.image.load("coinBlock2.png")
 		self.emptyCoinBlockPic = pygame.image.load("emptyCoinBlock2.png")
 
 	def update(self):
 		if(self.model.mario.y == self.y + self.h and self.model.mario.x + self.model.mario.w > self.x and self.model.mario.x < self.x + self.w):
-			print("whoa")
+			if self.coinCount > 0:
+				self.vvelocity = -30.0
+				self.n = random.randint(1, 50)
+				if self.n%2 == 0:
+					self.hvelocity = self.n%15
+				else:
+					self.hvelocity = -(self.n%15)
+
+				self.model.coins.append(Coin(self.hvelocity, self.vvelocity, self.x, self.y, self.model))
+				self.coinCount -= 1
+
+############################
+########## Coin ############
+############################
+class Coin():
+	def __init__(self, hvel, vvel, x, y, model):
+		self.x = x
+		self.y = y
+		self.w = 0
+		self.h = 0
+		self.hvel = hvel
+		self.vvel = vvel
+		self.model = model
+		self.coinPic = pygame.image.load("coin.png")
+
+	def update(self):
+		self.vvel += 3.14159
+		self.y += self.vvel
+		self.x += self.hvel
+		if self.y > 1000:
+			self.vvel = 0
+			self.hvel = 0
+			self.y = 1000
 
 ############################
 ########## Model ###########
@@ -136,11 +170,14 @@ class Model():
 		self.brick2 = Brick(600, 350)
 		self.coinBlock1 = CoinBlock(self, 900, 200)
 		self.coinBlock2 = CoinBlock(self, 1200, 230)
+		self.coins = list(())
 
 	def update(self):
 		self.mario.update()
 		self.coinBlock1.update()
 		self.coinBlock2.update()
+		for i in range(len(self.coins)):
+				self.coins[i].update()
 
 ############################
 ########## View ############
@@ -165,8 +202,18 @@ class View():
 		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos, self.model.brick2.y), self.model.rect)
 
 		#draw coin blocks
-		self.screen.blit(self.model.coinBlock1.coinBlockPic, (self.model.coinBlock1.x - self.model.scrollPos, self.model.coinBlock1.y), self.model.rect)
-		self.screen.blit(self.model.coinBlock2.coinBlockPic, (self.model.coinBlock2.x - self.model.scrollPos, self.model.coinBlock2.y), self.model.rect)
+		if self.model.coinBlock1.coinCount > 0:
+			self.screen.blit(self.model.coinBlock1.coinBlockPic, (self.model.coinBlock1.x - self.model.scrollPos, self.model.coinBlock1.y), self.model.rect)
+		else:
+			self.screen.blit(self.model.coinBlock1.emptyCoinBlockPic, (self.model.coinBlock1.x - self.model.scrollPos, self.model.coinBlock1.y), self.model.rect)
+		if self.model.coinBlock2.coinCount > 0:
+			self.screen.blit(self.model.coinBlock2.coinBlockPic, (self.model.coinBlock2.x - self.model.scrollPos, self.model.coinBlock2.y), self.model.rect)
+		else:
+			self.screen.blit(self.model.coinBlock2.emptyCoinBlockPic, (self.model.coinBlock2.x - self.model.scrollPos, self.model.coinBlock2.y), self.model.rect)
+
+		#draw the coins
+		for i in range(len(self.model.coins)):
+			self.screen.blit(self.model.coins[i].coinPic, (self.model.coins[i].x - self.model.scrollPos, self.model.coins[i].y - 30), self.model.rect)
 
 		#animate mario
 		if self.model.mario.facingRight: #if he's facing right, animate right
@@ -222,7 +269,7 @@ class Controller():
 			self.model.mario.runningLeft = True
 		if keys[K_RIGHT]:
 			self.model.mario.runningRight = True
-		if keys[K_SPACE] and self.model.mario.y == 355:
+		if keys[K_SPACE] and (self.model.mario.y == 355 or self.model.mario.onTop) and self.model.mario.vvel == 0:
 			self.model.mario.vvel = -35
 
 ############################
