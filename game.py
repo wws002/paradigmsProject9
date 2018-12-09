@@ -34,6 +34,34 @@ class Mario():
 		self.marioPics.append(pygame.image.load("mario4left.png"))
 		self.marioPics.append(pygame.image.load("mario5left.png"))
 
+	def collision(self, x, y, w, h):
+		if self.x + self.w <= x:
+			return False
+		if self.x >= x + w:
+			return False
+		if self.y + self.h <= y:
+			return False
+		if self.y >= y + h:
+			return False
+		return True
+
+	def leaveBlock(self, x, y, w, h):
+		if self.y + self.h > y and self.prev_y + self.h <= y:
+			self.vvel = 0
+			self.y = y - self.h
+			self.onTop = True
+		if self.y < y + h and self.prev_y >= y + h:
+			self.y = y + h
+			self.vvel = 0.1
+		if self.x + self.y > x and self.prev_x + self.w <= x:
+			self.runningRight = False
+			self.model.scrollPos = x - 350 - self.w
+			self.x = x - self.w
+		if self.x < x + w and self.prev_x >= x + w:
+			self.runningLeft = False
+			self.model.scrollPos = x - 350 + w
+			self.x = x + w
+
 	def notePrevious(self):
 		self.prev_x = self.x
 		self.prev_y = self.y
@@ -46,6 +74,24 @@ class Mario():
 		#ground
 		if self.y > 355:
 			self.y = 355
+
+		#run
+		if self.runningLeft:
+			self.x -= 10
+			self.model.scrollPos -= 10
+			self.facingRight = False
+		if self.runningRight:
+			self.x +=10
+			self.model.scrollPos += 10
+			self.facingRight = True
+
+		#collision detection
+		if self.collision(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h):
+			print("whoa")
+			#self.leaveBlock(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h)
+		if self.collision(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h):
+			print("whoa")
+			#self.leaveBlock(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h)
 
 ############################
 ########## Brick ###########
@@ -90,8 +136,8 @@ class View():
 		pygame.draw.rect(self.screen, (0, 128, 0), (0, 450, 800, 600))
 
 		#draw bricks
-		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos, self.model.brick1.y), self.model.rect)
-		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos, self.model.brick2.y), self.model.rect)
+		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos + 350, self.model.brick1.y), self.model.rect)
+		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos + 350, self.model.brick2.y), self.model.rect)
 
 		#animate mario
 		if self.model.mario.facingRight: #if he's facing right, animate right
@@ -143,15 +189,9 @@ class Controller():
 		self.model.mario.runningLeft = False
 
 		if keys[K_LEFT]:
-			self.model.mario.x -= 10
-			self.model.scrollPos -= 10
 			self.model.mario.runningLeft = True
-			self.model.mario.facingRight = False
 		if keys[K_RIGHT]:
-			self.model.mario.x += 10
-			self.model.scrollPos += 10
 			self.model.mario.runningRight = True
-			self.model.mario.facingRight = True
 		if keys[K_SPACE] and self.model.mario.y == 355:
 			self.model.mario.vvel = -35
 
