@@ -12,6 +12,7 @@ class Mario():
 		self.model = model
 		self.x = 0
 		self.y = 0
+		self.model.scrollPos = self.x - 350
 		self.prev_x = 0
 		self.prev_y = 0
 		self.w = 60
@@ -87,11 +88,9 @@ class Mario():
 
 		#collision detection
 		if self.collision(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h):
-			print("whoa")
-			#self.leaveBlock(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h)
+			self.leaveBlock(self.model.brick1.x, self.model.brick1.y, self.model.brick1.w, self.model.brick1.h)
 		if self.collision(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h):
-			print("whoa")
-			#self.leaveBlock(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h)
+			self.leaveBlock(self.model.brick2.x, self.model.brick2.y, self.model.brick2.w, self.model.brick2.h)
 
 ############################
 ########## Brick ###########
@@ -136,8 +135,8 @@ class View():
 		pygame.draw.rect(self.screen, (0, 128, 0), (0, 450, 800, 600))
 
 		#draw bricks
-		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos + 350, self.model.brick1.y), self.model.rect)
-		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos + 350, self.model.brick2.y), self.model.rect)
+		self.screen.blit(self.model.brick1.brickPic, (self.model.brick1.x - self.model.scrollPos, self.model.brick1.y), self.model.rect)
+		self.screen.blit(self.model.brick2.brickPic, (self.model.brick2.x - self.model.scrollPos, self.model.brick2.y), self.model.rect)
 
 		#animate mario
 		if self.model.mario.facingRight: #if he's facing right, animate right
@@ -185,6 +184,7 @@ class Controller():
 				if event.key == K_ESCAPE:
 					self.keep_going = False
 		keys = pygame.key.get_pressed()
+		self.model.mario.notePrevious()
 		self.model.mario.runningRight = False
 		self.model.mario.runningLeft = False
 
